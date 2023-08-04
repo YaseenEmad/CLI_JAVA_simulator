@@ -1,3 +1,9 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -7,7 +13,7 @@ public class Terminal {
     Parser parser = new Parser();
 
     //This method will choose the suitable command method to be called
-    public void chooseCommandAction(){
+    public void chooseCommandAction() throws IOException {
 
 
         switch (parser.getCommandName()) {
@@ -32,10 +38,41 @@ public class Terminal {
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     }
     public void cd(String[] args){
-        Path newDir = Paths.get(args[0]).toAbsolutePath();
-        System.setProperty("user.dir", newDir.toString());
+        if(args.length == 0){
+            System.setProperty("user.dir", System.getProperty("user.home"));
+            return;
+        }
+        // Get the current working directory
+        Path currentDir = FileSystems.getDefault().getPath(System.getProperty("user.dir"));
+
+        // Resolve the provided relative path against the current working directory
+        Path newPath = currentDir.resolve(args[0]).normalize();
+
+        // Check if the new path exists and is a directory
+        if (Files.exists(newPath) && Files.isDirectory(newPath)) {
+            // Set the new working directory
+            System.setProperty("user.dir", newPath.toString());
+        } else {
+            System.out.println("Error: Directory does not exist or is not a directory.");
+        }
     }
-    public void ls(){}
+
+    public void ls(){
+        File currentDir = new File(System.getProperty("user.dir"));
+        File[] files = currentDir.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    System.out.println(file.getName() + " [Directory]");
+                } else {
+                    System.out.println(file.getName());
+                }
+            }
+        } else {
+            System.out.println("Error: Unable to list files and directories.");
+        }
+    }
     public void pwd(){
         System.out.println(System.getProperty("user.dir"));
     }
@@ -53,7 +90,15 @@ public class Terminal {
     public void rmdir (String[] args){}
     public void cp (String[] args){} //cp file1.txt file2.txt
     public void more (String[] args){}
-    public void cat (String[] args){}
+    public void cat (String[] args) throws IOException {
+        for(int i=0; i<args.length; i++) {
+            BufferedReader reader = new BufferedReader(new FileReader(args[i]));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        }
+    }
     public void exit (){
         System.exit(0);
     }
