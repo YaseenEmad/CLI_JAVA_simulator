@@ -1,24 +1,44 @@
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-
 public class Terminal {
-    Parser parser; //"Parser" class object
+    Parser parser = new Parser();
 
     //This method will choose the suitable command method to be called
     public void chooseCommandAction(){
 
-        Terminal tm = new Terminal();
-        if (parser.getCommandName() == "date"){tm.date();}
-        if (parser.getCommandName() == "cd"){tm.cd(parser.getArgs());}
-        // and so on
+
+        switch (parser.getCommandName()) {
+            case "date" -> date();
+            case "exit" -> exit();
+            case "pwd" -> pwd();
+            case "clear" -> clear();
+            case "help" -> help();
+            case "ls" -> ls();
+            case "cp" -> cp(parser.getArgs());
+            case "cd" -> cd(parser.getArgs());
+            case "mkdir" -> mkdir(parser.getArgs());
+            case "rmdir" -> rmdir(parser.getArgs());
+            case "cat" -> cat(parser.getArgs());
+            case "more" -> more(parser.getArgs());
+            case "mv" -> mv(parser.getArgs());
+            case "rm" -> rm(parser.getArgs());
+        }
+
     }
     public void clear(){
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     }
-    public void cd(String[] args){}
+    public void cd(String[] args){
+        Path newDir = Paths.get(args[0]).toAbsolutePath();
+        System.setProperty("user.dir", newDir.toString());
+    }
     public void ls(){}
-    public void pwd(){}
+    public void pwd(){
+        System.out.println(System.getProperty("user.dir"));
+    }
     public void date() {
         Date currentDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
@@ -51,6 +71,6 @@ public class Terminal {
                 "more <file> - View the contents of a file one screen at a time\n" +
                 "pwd - Show current working directory\n" +
                 "date - Show the current date and time\n" +
-                "exit : Stop all\n");
+                "exit : Stop all");
     }
 }
